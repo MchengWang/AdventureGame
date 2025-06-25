@@ -1,0 +1,10 @@
+# 文件夹
+.vs
+Binaries
+DerivedDataCache
+Intermediate
+Saved/Logs
+
+# 文件
+AdventureGame.sln
+.vsconfig
