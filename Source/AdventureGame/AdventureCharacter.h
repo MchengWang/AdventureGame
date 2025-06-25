@@ -3,12 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Camera/CameraComponent.h"
 #include "GameFramework/Character.h"
 #include "EnhancedInputComponent.h" // 添加增强输入组件模块
 #include "EnhancedInputSubsystems.h" // 启动对本地玩家子系统的访问
 #include "InputActionValue.h" // 启用对输入操作所产生的输入操作值的访问
 #include "AdventureCharacter.generated.h"
 
+class UAnimBlueprint;
 class UInputMappingContext;
 class UInputAction;
 class UInputComponent;
@@ -37,6 +39,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	TObjectPtr<UInputAction> JumpAction;
 
+	// 查看
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	UInputAction* LookAction;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -48,4 +54,31 @@ public:
 	UFUNCTION()
 	void Move(const FInputActionValue& Value);
 
+	// 处理查看输入
+	UFUNCTION()
+	void Look(const FInputActionValue& Value);
+
+	// 第一人称相机
+	UPROPERTY(VisibleAnywhere, Category = Camera)
+	UCameraComponent* FirstPersonCameraComponent;
+
+	// 第一人称相机偏移量
+	UPROPERTY(VisibleAnywhere, Category = Camera)
+	FVector FirstPersonCameraOffset = FVector(2.8f, 5.9f, 0.0f);
+
+	// 第一人称基元视野
+	UPROPERTY(EditAnywhere, Category = Camera)
+	float FirstPersonFieldOfView = 70.0f;
+
+	//第一人称基本体视图比例
+	UPROPERTY(EditAnywhere, Category = Camera)
+	float FirstPersonScale = 0.6f;
+
+	// 第一人称网格，仅对拥有的玩家可见
+	UPROPERTY(VisibleAnywhere, Category = Mesh)
+	USkeletalMeshComponent* FirstPersonMeshComponent;
+
+	// 第一人称动画
+	UPROPERTY(EditAnywhere, Category = Animation)
+	UAnimBlueprint* FirstPersonDefaultAnim;
 };
