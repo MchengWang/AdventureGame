@@ -71,6 +71,10 @@ public:
 	// 调用以将功能绑定到输入
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	// 从角色中卸下并移除已装备的工具
+	UFUNCTION()
+	void UnequipCurrentTool();
+
 	// 处理 2D 移动
 	UFUNCTION()
 	void Move(const FInputActionValue& Value);
@@ -102,4 +106,8 @@ public:
 	// 库存组件
 	UPROPERTY(VisibleAnywhere, Category = Inventory)
 	TObjectPtr<UInventoryComponent> InventoryComponent;
+
+	// 返回角色在世界中的位置
+	UFUNCTION()
+	FVector GetCameraTargetLocation();
 };

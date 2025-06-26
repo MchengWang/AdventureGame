@@ -194,10 +194,16 @@ void AAdventureCharacter::AttachTool(UEquippableToolDefinition* ToolDefinition)
 		// 将工具附加到第一人称角色
 		FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, true);
 
+		// 取消连接活动工具
+		if (EquippedTool != nullptr)
+		{
+			UnequipCurrentTool();
+		}
 
 		// 将工具附加到此角色，然后附加到其第一人称网格的右手
 		ToolToEquip->AttachToActor(this, AttachmentRules);
 		ToolToEquip->AttachToComponent(FirstPersonMeshComponent, AttachmentRules, FName(TEXT("HandGrip_R")));
+		//ToolToEquip->AttachToComponent(GetMesh(), AttachmentRules, FName(TEXT("HandGrip_R")));
 
 		ToolToEquip->OwningCharacter = this;
 
@@ -222,4 +228,45 @@ void AAdventureCharacter::AttachTool(UEquippableToolDefinition* ToolDefinition)
 		}
 
 	}
+}
+
+FVector AAdventureCharacter::GetCameraTargetLocation()
+{
+	// 要返回的目标位置
+	FVector TargetPosition;
+
+	UWorld* const World = GetWorld();
+
+	if (World != nullptr)
+	{
+		// 线追踪的结果 FHitResult 命中;
+		FHitResult Hit;
+
+		// 模拟角色沿其向下看的矢量的线条轨迹
+		const FVector TraceStart = FirstPersonCameraComponent->GetComponentLocation();
+		const FVector TraceEnd = TraceStart + FirstPersonCameraComponent->GetForwardVector() * 10000.0;
+
+		World->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, ECollisionChannel::ECC_Visibility);
+
+		TargetPosition = Hit.bBlockingHit ? Hit.ImpactPoint : Hit.TraceEnd;
+	}
+
+	return TargetPosition;
+}
+
+void AAdventureCharacter::UnequipCurrentTool()
+{
+
+	// 获取此角色的玩家控制器
+	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		{
+			// 删除工具的映射上下文
+			Subsystem->RemoveMappingContext(EquippedTool->ToolMappingContext);
+		}
+	}
+
+	EquippedTool->Destroy();
+
 }

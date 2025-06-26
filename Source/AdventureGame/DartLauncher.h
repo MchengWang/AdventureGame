@@ -4,7 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "AdventureGame/EquippableToolBase.h"
+#include "AdventureGame/FirstPersonProjectile.h"
 #include "DartLauncher.generated.h"
+
+class AFirstPersonProjectile;
 
 /**
  * 
@@ -21,4 +24,8 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void BindInputAction(const UInputAction* InputToBind) override;
+
+	// 要生成的 Projectile 类
+	UPROPERTY(EditAnywhere, Category = Projectile)
+	TSubclassOf<AFirstPersonProjectile> ProjectileClass;
 };
