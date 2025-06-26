@@ -10,10 +10,14 @@
 #include "InputActionValue.h" // 启用对输入操作所产生的输入操作值的访问
 #include "AdventureCharacter.generated.h"
 
+class AEquippableToolBase;
 class UAnimBlueprint;
+class UEquippableToolDefinition;
 class UInputMappingContext;
 class UInputAction;
 class UInputComponent;
+class UItemDefinition;
+class UInventoryComponent;
 
 UCLASS()
 class ADVENTUREGAME_API AAdventureCharacter : public ACharacter
@@ -42,6 +46,14 @@ protected:
 	// 查看
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	UInputAction* LookAction;
+
+	// 使用输入实例
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	TObjectPtr<UInputAction> UseAction;
+
+	// 当前装备的工具
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Tools)
+	TObjectPtr<AEquippableToolBase> EquippedTool;
 
 public:	
 	// Called every frame
@@ -81,4 +93,20 @@ public:
 	// 第一人称动画
 	UPROPERTY(EditAnywhere, Category = Animation)
 	UAnimBlueprint* FirstPersonDefaultAnim;
+
+	// 清单组件
+	UPROPERTY(VisibleAnywhere, Category = Inventory)
+	TObjectPtr<UInventoryComponent> InventoryComponent;
+
+	// 返回是否玩家是否已经拥有此工具
+	UFUNCTION()
+	bool IsToolAlreadyOwned(UEquippableToolDefinition* ToolDefinition);
+
+	// 给玩家附加和装备上工具
+	UFUNCTION()
+	void AttachTool(UEquippableToolDefinition* ToolDefinition);
+
+	// 其他类可以调用以尝试向玩家提供物品的公共函数
+	UFUNCTION()
+	void GiveItem(UItemDefinition* ItenDefinition);
 };

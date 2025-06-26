@@ -50,14 +50,10 @@ void APickupBase::InitializePickup()
 		// 从数据表中检索与此取件关联的商品数据
 		const FItemData* ItemDataRow = PickupDataTable->FindRow<FItemData>(PickupItemID, PickupItemID.ToString());
 
-		ReferenceItem = NewObject<UItemDefinition>(this, UItemDefinition::StaticClass());
-
-		ReferenceItem->ID = ItemDataRow->ID;
-		ReferenceItem->ItemType = ItemDataRow->ItemType;
-		ReferenceItem->ItemText = ItemDataRow->ItemText;
-		ReferenceItem->WorldMesh = ItemDataRow->ItemBase->WorldMesh;
-
 		UItemDefinition* TempItemDefinition = ItemDataRow->ItemBase.Get();
+
+		// 创建具有类类型的项的副本
+		ReferenceItem = TempItemDefinition->CreateItemCopy();
 
 		// 通过调用 IsValid（） 检查网格当前是否已加载。
 		if (TempItemDefinition->WorldMesh.IsValid()) {
@@ -101,6 +97,9 @@ void APickupBase::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent,
 
 	if (Character != nullptr)
 	{
+		// 将此条目给角色
+		Character->GiveItem(ReferenceItem);
+
 		// 从 Overlap 事件中注销，以便不再触发它
 		SphereComponent->OnComponentBeginOverlap.RemoveAll(this);
 

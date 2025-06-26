@@ -43,6 +43,9 @@ AAdventureCharacter::AAdventureCharacter()
 	FirstPersonCameraComponent->bEnableFirstPersonScale = true;
 	FirstPersonCameraComponent->FirstPersonFieldOfView = FirstPersonFieldOfView;
 	FirstPersonCameraComponent->FirstPersonScale = FirstPersonScale;
+
+	// 为所拥有者创建一个清单组件
+	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
 }
 
 // Called when the game starts or when spawned
@@ -131,5 +134,88 @@ void AAdventureCharacter::Look(const FInputActionValue& Value)
 	{
 		AddControllerYawInput(LookAxisValue.X);
 		AddControllerPitchInput(LookAxisValue.Y);
+	}
+}
+
+bool AAdventureCharacter::IsToolAlreadyOwned(UEquippableToolDefinition* ToolDefinition)
+{
+	// 检查角色是否还没有此特定工具
+	for (UEquippableToolDefinition* InventoryItem : InventoryComponent->ToolInventory)
+	{
+		if (ToolDefinition->ID == InventoryItem->ID)
+		{
+			return true;
+		}
+	}
+}
+
+void AAdventureCharacter::AttachTool(UEquippableToolDefinition* ToolDefinition)
+{
+	// 仅在尚未拥有此工具时装备它
+	if (not IsToolAlreadyOwned(ToolDefinition))
+	{
+		// 生成该工具的新实例以进行装备
+		AEquippableToolBase* ToolToEquip = GetWorld()->SpawnActor<AEquippableToolBase>(ToolDefinition->ToolAsset, this->GetActorTransform());
+
+		// // 将工具附加到第一人称角色
+		FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, true);
+
+		// 将工具附加到此角色，然后附加到其第一人称网格的右手
+		ToolToEquip->AttachToActor(this, AttachmentRules);
+		ToolToEquip->AttachToComponent(FirstPersonMeshComponent, AttachmentRules, FName(TEXT("HandGrip_R")));
+
+		// 在角色的网格上设置动画。
+		FirstPersonMeshComponent->SetAnimInstanceClass(ToolToEquip->FirstPersonToolAnim->GeneratedClass);
+		GetMesh()->SetAnimInstanceClass(ToolToEquip->ThirdPersonToolAnim->GeneratedClass);
+
+		// 将工具添加到此角色的物品栏中
+		InventoryComponent->ToolInventory.Add(ToolDefinition);
+
+		ToolToEquip->OwningCharacter = this;
+
+		EquippedTool = ToolToEquip;
+
+		// 获取此角色的玩家控制器
+		if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
+		{
+			if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+			{
+				Subsystem->AddMappingContext(ToolToEquip->ToolMappingContext, 1);
+			}
+
+			ToolToEquip->BindInputAction(UseAction);
+		}
+	}
+}
+
+void AAdventureCharacter::GiveItem(UItemDefinition* ItemDefinition)
+{
+	// 基于项目类型的大小写
+	switch (ItemDefinition->ItemType)
+	{
+	case EItemType::Tool:
+	{
+		// 如果该物品是工具，请尝试将其投射并附加到角色上
+
+		UEquippableToolDefinition* ToolDefinition = Cast<UEquippableToolDefinition>(ItemDefinition);
+
+		if (ToolDefinition != nullptr)
+		{
+			AttachTool(ToolDefinition);
+		}
+		else {
+			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Cast to tool failed!"));
+		}
+		break;
+	}
+
+	case EItemType::Consumable:
+	{
+		// Not implemented
+		break;
+	}
+	default:
+		break;
+
 	}
 }

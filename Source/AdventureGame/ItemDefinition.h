@@ -31,4 +31,7 @@ public:
 	// The Static Mesh used to display this item in the world.
 	UPROPERTY(EditAnywhere, Category = "Item Data")
 	TSoftObjectPtr<UStaticMesh> WorldMesh;
+
+	// 创建并返回项目的副本
+	virtual UItemDefinition* CreateItemCopy() const;
 };

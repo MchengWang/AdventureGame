@@ -1,15 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "ItemDefinition.h"
+#include "EquippableToolDefinition.h"
 
-/**
-* 创建并返回此项定义的副本
-* @return 项目的副本
-*/
-UItemDefinition* UItemDefinition::CreateItemCopy() const
+UEquippableToolDefinition* UEquippableToolDefinition::CreateItemCopy() const
 {
-	UItemDefinition* ItemCopy = NewObject<UItemDefinition>(StaticClass());
+	UEquippableToolDefinition* ItemCopy = NewObject<UEquippableToolDefinition>(StaticClass());
 
 	ItemCopy->ID = this->ID;
 	ItemCopy->ItemType = this->ItemType;
