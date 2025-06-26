@@ -32,74 +32,74 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	// Input Mapping Context
+	// 输入映射文本
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	TObjectPtr<UInputMappingContext> LookContext;
 
-	// Move Input Actions
+	// 移动输入行为
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	TObjectPtr<UInputAction> MoveAction;
 
-	// Jump Input Actions
+	// 跳跃行为
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	TObjectPtr<UInputAction> JumpAction;
 
-	// Look Input Actions
+	// 查看行为
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	TObjectPtr<UInputAction> LookAction;
 
-	// Switch Tool Input Actions
+	// 工具变更行为
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	TObjectPtr<UInputAction> SwitchToolAction;
 
-	// Use Input Actions
+	// 使用输入行为
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	TObjectPtr<UInputAction> UseAction;
 
-	// First Person animations
+	// 第一人称动画
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animation)
 	UAnimBlueprint* FirstPersonDefaultAnim;
 
-	// The currently equipped tool
+	// 当前装备工具
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Tools)
 	TObjectPtr<AEquippableToolBase> EquippedTool;
 
 public:
-	// Called every frame
+	// 逐帧调用
 	virtual void Tick(float DeltaTime) override;
 
-	// Called to bind functionality to input
+	// 调用以将功能绑定到输入
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	// Handles 2D Movement Input
+	// 处理 2D 移动
 	UFUNCTION()
 	void Move(const FInputActionValue& Value);
 
-	// Handles Look Input
+	// 处理查看
 	UFUNCTION()
 	void Look(const FInputActionValue& Value);
 
-	// Attaches and equips a tool to the player
+	// 为玩家附加和装备工具
 	UFUNCTION()
 	void AttachTool(UEquippableToolDefinition* ToolDefinition);
 
-	// Public function that other classes can call to attempt to give an item to the player
+	// 其他类可以调用以尝试向玩家提供物品的公共函数
 	UFUNCTION()
 	void GiveItem(UItemDefinition* ItemDefinition);
 
-	// Returns whether or not the player already owns this tool
+	// 返回玩家是否已经拥有此工具
 	UFUNCTION()
 	bool IsToolAlreadyOwned(UEquippableToolDefinition* ToolDefinition);
 
-	// First Person camera
+	// 第一人称相机
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UCameraComponent> FirstPersonCameraComponent;
 
-	// First-person mesh, visible only to the owning player
+	// 第一人称网格，仅对拥有的玩家可见
 	UPROPERTY(VisibleAnywhere, Category = Mesh)
 	TObjectPtr<USkeletalMeshComponent> FirstPersonMeshComponent;
 
-	// Inventory Component
+	// 库存组件
 	UPROPERTY(VisibleAnywhere, Category = Inventory)
 	TObjectPtr<UInventoryComponent> InventoryComponent;
 };

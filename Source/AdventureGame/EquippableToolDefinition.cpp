@@ -11,6 +11,7 @@ UEquippableToolDefinition* UEquippableToolDefinition::CreateItemCopy() const
 	ItemCopy->ItemType = this->ItemType;
 	ItemCopy->ItemText = this->ItemText;
 	ItemCopy->WorldMesh = this->WorldMesh;
+	ItemCopy->ToolAsset = this->ToolAsset;
 
 	return ItemCopy;
 }

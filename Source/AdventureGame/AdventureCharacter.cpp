@@ -12,24 +12,24 @@ AAdventureCharacter::AAdventureCharacter()
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it
 	PrimaryActorTick.bCanEverTick = true;
 
-	// Create a first person camera component
+	// 创建第一人称相机组件
 	FirstPersonCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
 	check(FirstPersonCameraComponent != nullptr);
 
-	// Create a first person mesh component for the owning player
+	// 为拥有的玩家创建第一人称望网格组件
 	FirstPersonMeshComponent = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FirstPersonMesh"));
 	check(FirstPersonMeshComponent != nullptr);
 
-	// Create an inventory component for the owning player
+	// 为拥有的玩家创建库存组件
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
 
-	// Attach the FirstPerson mesh to the Skeletal Mesh
+	// 将第一人称网格体附加到骨骼体
 	FirstPersonMeshComponent->SetupAttachment(GetMesh());
 
-	// Attach the camera component to the first-person Skeletal Mesh
+	// 将摄像机组件附加到第一人称骨骼网格体
 	FirstPersonCameraComponent->SetupAttachment(FirstPersonMeshComponent, FName("Head"));
 
-	// Enable the pawn to control camera rotation
+	// 启用 pawn 以控制摄像机旋转
 	FirstPersonCameraComponent->bUsePawnControlRotation = true;
 }
 
@@ -40,31 +40,31 @@ void AAdventureCharacter::BeginPlay()
 
 	check(GEngine != nullptr);
 
-	// Only the owning player sees the first person mesh.
+	// 只用拥有的玩家才能看到第一人称网格
 	FirstPersonMeshComponent->SetOnlyOwnerSee(true);
 
-	// Set the animations on the first person mesh.
+	// 在第一人称网格体上设置动画
 	FirstPersonMeshComponent->SetAnimInstanceClass(FirstPersonDefaultAnim->GeneratedClass);
 
-	// The owning player doesn't see the regular (third-person) body mesh
+	// 拥有的玩家看不到常规 （第三人称） Body Mesh
 	GetMesh()->SetOwnerNoSee(true);
 
 
-	// Position the camera slightly above the eyes.
+	// 将相机放置在眼睛略上方的位置。
 	FirstPersonCameraComponent->SetRelativeLocation(FVector(2.8f, 5.9f, 0.0f));
 
-	// Get the player controller for this character
+	// 获取此角色的玩家控制器
 	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
 	{
-		// Get the enhanced input local player subsystem and add a new input mapping context to it
+		// 获取增强的输入本地玩家子系统，并向其添加新的输入映射上下文
 		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
 		{
 			Subsystem->AddMappingContext(LookContext, 0);
 		}
 	}
 
-	// Display a debug message for five seconds. 
-	// The -1 "Key" value argument prevents the message from being updated or refreshed.
+	// 显示调试消息 5 秒钟。
+	// -1 “Key” 值参数可防止更新或刷新消息。
 	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("We are using AdventureCharacter."));
 }
 
@@ -78,16 +78,16 @@ void AAdventureCharacter::Tick(float DeltaTime)
 // Called to bind functionality to input
 void AAdventureCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
-	// Check the UInputComponent passed to this function and cast it to an UEnhancedInputComponent
+	//检查传递给此函数的 UInputComponent 并将其转换为 UEnhancedInputComponent
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
 	{
-		// Bind Movement Actions
+		// 绑定移动行为
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AAdventureCharacter::Move);
 
-		// Bind Look Actions
+		// 绑定查看行为
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AAdventureCharacter::Look);
 
-		// Bind Jump Actions
+		// 绑定跳跃行为
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 	}
@@ -98,13 +98,13 @@ void AAdventureCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 void AAdventureCharacter::Move(const FInputActionValue& Value)
 {
 
-	// 2D Vector of movement values returned from the input action
+	// 从输入作返回的移动值的 2D 向量
 	const FVector2d MovementValue = Value.Get<FVector2D>();
 
-	// Check if the controller possessing this Actor is valid
+	// 检查拥有此 Actor 的控制器是否有效
 	if (Controller)
 	{
-		// Add Forward and Right movement values to the Actor
+		// 将 Forward 和 Right movement 值添加到 Actor
 		const FVector Right = GetActorRightVector();
 		AddMovementInput(Right, MovementValue.X);
 
@@ -115,13 +115,13 @@ void AAdventureCharacter::Move(const FInputActionValue& Value)
 
 void AAdventureCharacter::Look(const FInputActionValue& Value)
 {
-	// 2D Vector of look values 
+	// Look 值的 2D 矢量
 	const FVector2D LookAxisValue = Value.Get<FVector2D>();
 
-	// Check if the controller possessing this Actor is valid
+	// 检查拥有此 Actor 的控制器是否有效
 	if (Controller)
 	{
-		// Add Pitch and Yaw movement values to the Actor
+		// 将 Pitch 和 Yaw movement 值添加到 Actor
 		AddControllerYawInput(LookAxisValue.X);
 		AddControllerPitchInput(LookAxisValue.Y);
 	}
@@ -133,12 +133,12 @@ void AAdventureCharacter::GiveItem(UItemDefinition* ItemDefinition)
 	EItemType ItemTypeText = ItemDefinition->ItemType;
 	FText ItemName = ItemDefinition->ItemText.Name;
 
-	// Case based on the type of the item
+	// 基于项目类型的大小写
 	switch (ItemDefinition->ItemType)
 	{
 	case EItemType::Tool:
 	{
-		// If the item is a tool, attempt to cast and attach it to the character
+		// 如果该物品是工具，请尝试将其投射并附加到角色上
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("Item to give is a tool"));
 		UEquippableToolDefinition* ToolDefinition = Cast<UEquippableToolDefinition>(ItemDefinition);
 		if (ToolDefinition != nullptr)
@@ -164,7 +164,7 @@ void AAdventureCharacter::GiveItem(UItemDefinition* ItemDefinition)
 
 bool AAdventureCharacter::IsToolAlreadyOwned(UEquippableToolDefinition* ToolDefinition)
 {
-	// Check that the character does not yet have this particular tool
+	// 检查角色是否还没有此特定工具
 	for (UEquippableToolDefinition* InventoryItem : InventoryComponent->ToolInventory)
 	{
 		if (ToolDefinition->ID == InventoryItem->ID)
@@ -184,33 +184,33 @@ bool AAdventureCharacter::IsToolAlreadyOwned(UEquippableToolDefinition* ToolDefi
 void AAdventureCharacter::AttachTool(UEquippableToolDefinition* ToolDefinition)
 {
 
-	// Only equip this tool if it isn't already owned
+	// 仅在尚未拥有此工具时装备它
 	if (not IsToolAlreadyOwned(ToolDefinition))
 	{
-		// Spawn a new instance of the tool to equip
+		// 生成该工具的新实例以进行装备
 		AEquippableToolBase* ToolToEquip = GetWorld()->SpawnActor<AEquippableToolBase>(ToolDefinition->ToolAsset, this->GetActorTransform());
 
 
-		// Attach the tool to the First Person Character
+		// 将工具附加到第一人称角色
 		FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, true);
 
 
-		// Attach the tool to this character, and then the right hand of their first person mesh
+		// 将工具附加到此角色，然后附加到其第一人称网格的右手
 		ToolToEquip->AttachToActor(this, AttachmentRules);
 		ToolToEquip->AttachToComponent(FirstPersonMeshComponent, AttachmentRules, FName(TEXT("HandGrip_R")));
 
 		ToolToEquip->OwningCharacter = this;
 
-		// Add the tool to this character's inventory
+		// 将工具添加到此角色的库存中
 		InventoryComponent->ToolInventory.Add(ToolDefinition);
 
-		// Set the animations on the first person mesh.
+		// 在第一人称网格上设置动画。
 		FirstPersonMeshComponent->SetAnimInstanceClass(ToolToEquip->FirstPersonToolAnim->GeneratedClass);
 		GetMesh()->SetAnimInstanceClass(ToolToEquip->ThirdPersonToolAnim->GeneratedClass);
 
 		EquippedTool = ToolToEquip;
 
-		// Get the player controller for this character
+		// 获取此角色的玩家控制器
 		if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
 		{
 			if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
