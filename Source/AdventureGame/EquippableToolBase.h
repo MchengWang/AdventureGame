@@ -39,6 +39,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TObjectPtr<UInputMappingContext> ToolMappingContext;
 
+	// First Person animations
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float UseCooldown;
+
 	// 使用工具
 	UFUNCTION()
 	virtual void Use();

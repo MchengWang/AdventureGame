@@ -1,13 +1,13 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Epic Games, Inc. All Rights Reserved.
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "Camera/CameraComponent.h"
+#include "EnhancedInputComponent.h"
+#include "EnhancedInputSubsystems.h" 
 #include "GameFramework/Character.h"
-#include "EnhancedInputComponent.h" // 添加增强输入组件模块
-#include "EnhancedInputSubsystems.h" // 启动对本地玩家子系统的访问
-#include "InputActionValue.h" // 启用对输入操作所产生的输入操作值的访问
+#include "InputActionValue.h"
 #include "AdventureCharacter.generated.h"
 
 class AEquippableToolBase;
@@ -32,81 +32,74 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	// Input Mapping Context
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
-	TObjectPtr<UInputMappingContext> FirstPersonContext;
+	TObjectPtr<UInputMappingContext> LookContext;
 
-	// 移动操作
+	// Move Input Actions
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	TObjectPtr<UInputAction> MoveAction;
 
-	// 跳跃
+	// Jump Input Actions
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	TObjectPtr<UInputAction> JumpAction;
 
-	// 查看
+	// Look Input Actions
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
-	UInputAction* LookAction;
+	TObjectPtr<UInputAction> LookAction;
 
-	// 使用输入实例
+	// Switch Tool Input Actions
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	TObjectPtr<UInputAction> SwitchToolAction;
+
+	// Use Input Actions
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	TObjectPtr<UInputAction> UseAction;
 
-	// 当前装备的工具
+	// First Person animations
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animation)
+	UAnimBlueprint* FirstPersonDefaultAnim;
+
+	// The currently equipped tool
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Tools)
 	TObjectPtr<AEquippableToolBase> EquippedTool;
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	// 处理 2D 移动操作
+	// Handles 2D Movement Input
 	UFUNCTION()
 	void Move(const FInputActionValue& Value);
 
-	// 处理查看输入
+	// Handles Look Input
 	UFUNCTION()
 	void Look(const FInputActionValue& Value);
 
-	// 第一人称相机
-	UPROPERTY(VisibleAnywhere, Category = Camera)
-	UCameraComponent* FirstPersonCameraComponent;
-
-	// 第一人称相机偏移量
-	UPROPERTY(VisibleAnywhere, Category = Camera)
-	FVector FirstPersonCameraOffset = FVector(2.8f, 5.9f, 0.0f);
-
-	// 第一人称基元视野
-	UPROPERTY(EditAnywhere, Category = Camera)
-	float FirstPersonFieldOfView = 70.0f;
-
-	//第一人称基本体视图比例
-	UPROPERTY(EditAnywhere, Category = Camera)
-	float FirstPersonScale = 0.6f;
-
-	// 第一人称网格，仅对拥有的玩家可见
-	UPROPERTY(VisibleAnywhere, Category = Mesh)
-	USkeletalMeshComponent* FirstPersonMeshComponent;
-
-	// 第一人称动画
-	UPROPERTY(EditAnywhere, Category = Animation)
-	UAnimBlueprint* FirstPersonDefaultAnim;
-
-	// 清单组件
-	UPROPERTY(VisibleAnywhere, Category = Inventory)
-	TObjectPtr<UInventoryComponent> InventoryComponent;
-
-	// 返回是否玩家是否已经拥有此工具
-	UFUNCTION()
-	bool IsToolAlreadyOwned(UEquippableToolDefinition* ToolDefinition);
-
-	// 给玩家附加和装备上工具
+	// Attaches and equips a tool to the player
 	UFUNCTION()
 	void AttachTool(UEquippableToolDefinition* ToolDefinition);
 
-	// 其他类可以调用以尝试向玩家提供物品的公共函数
+	// Public function that other classes can call to attempt to give an item to the player
 	UFUNCTION()
-	void GiveItem(UItemDefinition* ItenDefinition);
+	void GiveItem(UItemDefinition* ItemDefinition);
+
+	// Returns whether or not the player already owns this tool
+	UFUNCTION()
+	bool IsToolAlreadyOwned(UEquippableToolDefinition* ToolDefinition);
+
+	// First Person camera
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UCameraComponent> FirstPersonCameraComponent;
+
+	// First-person mesh, visible only to the owning player
+	UPROPERTY(VisibleAnywhere, Category = Mesh)
+	TObjectPtr<USkeletalMeshComponent> FirstPersonMeshComponent;
+
+	// Inventory Component
+	UPROPERTY(VisibleAnywhere, Category = Inventory)
+	TObjectPtr<UInventoryComponent> InventoryComponent;
 };
